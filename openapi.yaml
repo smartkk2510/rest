@@ -1,0 +1,172 @@
+openapi: 3.0.1
+info:
+  version: "v1"
+  title: REST
+  description: 'This is a sample server REST server.'
+ 
+servers:
+- url: http://localhost:3000
+tags:
+- name: employee
+  description: Everything about your Employees
+
+paths:
+  /employees/{name}:
+    get:
+      tags:
+      - employee
+      summary: find employee by name
+      description: Returns a single Employee
+      operationId: getEmployeeByName
+      parameters:
+      - name: name
+        in: path
+        description: name of employee to return
+        required: true
+        schema:
+          type: string
+          format: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+        404:
+          description: Entity not found for specified name
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    
+    put:
+      tags:
+      - employee
+      summary: Updated employee
+    
+      operationId: updateUser
+      parameters:
+      - name: name
+        in: path
+        description: name that need to be updated
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Updated employee object
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/Employee'
+        required: true
+      responses:
+        200:
+          description: Employee updated
+          content: 
+           application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: employee not found
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      x-codegen-request-body-name: body
+  
+      
+  /employees:
+    post:
+      tags:
+      - employee
+      summary: Add a employee with form data
+      operationId: AddEmployeeWithForm
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                name:
+                  type: string
+                  description:  name of the Employee
+                age:
+                  type: integer
+                  description:  age of the Employee
+      responses:
+        201:
+          description: Employee created
+          content: 
+           application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+       
+        400:
+          description: Validation error
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'  
+        409:
+          description: employee not found
+          content: 
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'  
+          
+  /employees/{index}: 
+    delete:
+      tags:
+      - employee
+      summary: Deletes a employee 
+      operationId: deleteEmployee
+      parameters:
+      - name: index
+        in: path
+        description: index of employee to delete
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: Deleted successfully
+          content: 
+           application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        404:
+          description: Entity not found for specified index
+          content: 
+           application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+                
+    
+
+   
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        name:
+          type: string
+          
+        age:
+          type: integer
+          format: int64
+       
+      
+
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+  
