@@ -15,28 +15,32 @@ const emp =[{
             },
          ]
 
-app.get('/employees/:name?',(req,res)=>{
+app.get('/employees',(req,res)=>{
     
-    if(!req.params.name){
-         return res.status(200).json(emp);
-    }
-    else{
-         emp.forEach( (element) => {
-            if(element.name == req.params.name){
-               return res.status(200).json(element);
-            }
-         });
+    return res.status(200).json(emp);
+         
+})
+
+app.get('/employees/:name',(req,res)=>{
+    let user;
+    emp.forEach( (element,i) => {
+        if(element.name == req.params.name){
+                user = i;              
+        }
+    });
+        
+    try{
+        res.status(200).json(emp[user]);
+    }catch(err){
+        res.status(404).json({
+            "message": `Entity not found for specified name: ${req.params.name}`
+         }); 
     }
 
-    res.status(404).json({
-        "message": `Entity not found for specified name: ${req.params.name}`
-     }); 
+   
 })
 
 app.post('/employees',(req,res)=>{
-    console.log(req.body)
-
-    
 
     if(!req.body.name || !req.body.age ){
        return res.status(400).send({
@@ -50,44 +54,54 @@ app.post('/employees',(req,res)=>{
       }); 
     }
 
-    emp.forEach( (element,index) => {
-        if(element.name == req.params.name){
-           return res.status(409).json({
-              "message": "Entity already exists."
-          });
+    let index = -1;
+
+    emp.forEach( (element,i) => {
+        
+        if(element.name == req.body.name){    
+            console.log(element)    
+            index = i;  
         }
      });
 
+ if(index == -1){
     emp.push({
         "name":req.body.name,
         "age":req.body.age}
      );
     
     res.status(201).send({
-
             "message": "Employee created"
     });
-    
+
+ }else{
+
+     res.status(409).json({
+              "message": "Entity already exists."
+            });
+ }
+       
 })
 
-app.put('/employees/:name?',(req,res)=>{
+app.put('/employees/:name',(req,res)=>{
     
-    console.log(req.body)
-    emp.forEach( (element,index) => {
-        
+    let index = -1;
+    emp.forEach( (element,i) => {        
         if(element.name == req.params.name){
-            emp[index] = req.body;
-            res.status(200).json({
-              "message": "Employee updated."
-          });
-          return;
+            index = i;
         }
-
     })
-  
-    res.status(404).json({
-        "message": `Entity not found for specified name: ${req.params.name}`
-     }); 
+
+    if(index != -1){
+        emp[index] = req.body;
+        res.status(200).json({
+          "message": "Employee updated."
+        });
+    }else{ 
+        res.status(404).json({
+            "message": `Entity not found for specified name: ${req.params.name}`
+        }); 
+    }
 
 })
 
@@ -105,6 +119,7 @@ app.delete('/employees/:index',(req,res)=>{
     res.status(200).send({
         "message": "Employee deleted"
     });
+  
 })
 
 
